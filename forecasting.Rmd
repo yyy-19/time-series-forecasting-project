@@ -1,0 +1,89 @@
+---
+title: "Untitled"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## GitHub Documents
+
+This is an R Markdown format used for publishing markdown documents to GitHub. When you click the **Knit** button all R code chunks are run and a markdown file (.md) suitable for publishing to GitHub is generated.
+---
+title: "A2"
+author: "Yuanyuan Yang"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+```{r}
+library(forecast)
+#read the file
+ts <- read.csv('1004167590.csv',header=FALSE)$V2
+
+```
+
+```{r}
+#draw plot, ACF, PACF to see the characterstic
+plot(as.ts(ts))
+acf(as.ts(ts))
+pacf(as.ts(ts))
+
+```
+
+```{r}
+#differencing data to make it stationary
+diff_ts<-diff(as.ts(ts),d=1)
+
+trend<- stats::filter(diff_ts, c(0.5,rep(1,11),0.5)/12)
+
+#draw time series plot, ACF plot, and PACF plot
+plot(diff_ts)
+lines(trend,col="red")
+acf(diff_ts,lag.max = 186)
+pacf(diff_ts,lag.max = 186)
+```
+
+
+
+
+```{r}
+#model selection
+fit1 = arima(ts,order=c(0,1,12))
+fit2 = arima(ts,order=c(0,1,4))
+
+AIC(fit1)
+AIC(fit2)
+
+fit1
+```
+
+
+
+```{r}
+#forecasting
+library(astsa)
+fit_ma= astsa::sarima(ts, 0,1,12)
+autoplot(forecast(Arima(ts,order = c(0,1,12))))
+
+```
+
+
+```{r}
+fit = arima( x = ts, order = c(0,1,12) ) # fit model 
+prd = predict( fit, n.ahead = 12 ) # 1- to 12-step-ahead forecasts
+write.table( prd$pred, file = "1234567890.csv", sep = ",",  # export to csv
+           row.names = FALSE, col.names = FALSE)            # no row or column names needed
+```
+
+
+
+
+
+
+
+
+
